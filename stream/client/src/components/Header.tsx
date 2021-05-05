@@ -15,6 +15,13 @@ const headerStyles = css`
     color: inherit;
     text-decoration: none;
   }
+  .nav{
+    &__right-side{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+  }
 `;
 
 export const Header:React.FC = () => {
