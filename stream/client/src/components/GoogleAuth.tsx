@@ -1,6 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../state';
+import { useActions } from '../state/hooks/useActions';
 
 const googleAuthStyles = css`
   .google-auth-btn {
@@ -31,28 +34,47 @@ declare global {
 
 export const GoogleAuth = () => {
   // const [auth, setAuth] = useState<null | any>(null);
-  const [isSignedIn, setIsSignedIn] = useState(null);
+  // const [isSignedIn, setIsSignedIn] = useState(null);
   const auth = useRef<any>();
+  const {signIn, signOut} = useActions()
+  const isSignedIn = useSelector((state:RootState) => state.auth?.isSignedIn)
 
   const renderAuthButton = () => {
     if (isSignedIn === null) {
       return null;
     } else if (isSignedIn) {
       return (
-        <button className="google-auth-btn">
+        <button onClick={onSignOutClick} className="google-auth-btn">
           <i className="fab fa-google">
             <span> Sign Out</span>
           </i>
         </button>
       );
     } else {
-      return <div>I am signed out!</div>;
+      return (
+        <button onClick={onSignInClick} className="google-auth-btn">
+          <i className="fab fa-google">
+            <span> Sign In With Google</span>
+          </i>
+        </button>
+      );
     }
   };
 
-  const onAuthChange = () => {
-    setIsSignedIn(auth.current.isSignedIn.get());
+  const onAuthChange = (isSignedIn:boolean) => {
+    if(isSignedIn){
+      signIn()
+    } else {
+      signOut()
+    }
   };
+
+  const onSignInClick = ()=>{
+    auth.current.signIn();
+  }
+  const onSignOutClick = ()=>{
+    auth.current.signOut();
+  }
 
   useEffect(() => {
     window.gapi.load('client:auth2', () => {
@@ -64,7 +86,7 @@ export const GoogleAuth = () => {
         })
         .then(() => {
           auth.current = window.gapi.auth2.getAuthInstance();
-          setIsSignedIn(auth.current?.isSignedIn.get());
+          onAuthChange(auth.current.isSignedIn.get())
           auth.current.isSignedIn.listen(onAuthChange);
         });
     });
