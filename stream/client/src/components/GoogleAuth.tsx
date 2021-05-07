@@ -2,6 +2,7 @@
 import { css } from '@emotion/react';
 import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { compose } from 'redux';
 import { RootState } from '../state';
 import { useActions } from '../state/hooks/useActions';
 
@@ -29,6 +30,7 @@ const googleAuthStyles = css`
 declare global {
   interface Window {
     gapi: any;
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
   }
 }
 
@@ -63,7 +65,7 @@ export const GoogleAuth = () => {
 
   const onAuthChange = (isSignedIn:boolean) => {
     if(isSignedIn){
-      signIn()
+      signIn(Number(auth.current.currentUser.get().getId()))
     } else {
       signOut()
     }
